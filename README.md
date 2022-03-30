@@ -29,7 +29,8 @@
   ```
 
 ## Pre-trained encoders
-Pre-trained audio encoders CNN14 and ResNet38 can be downloaded at: https://github.com/qiuqiangkong/audioset_tagging_cnn
+* Pre-trained audio encoders CNN14 and ResNet38 can be downloaded at: https://github.com/qiuqiangkong/audioset_tagging_cnn
+* Name the pre-trained models to `Cnn14.pth` or `ResNet38.pth`, and put them under the folder `pretrained_models/audio_encoder` (first create these two folders)
 
 ### Run experiments
 * Set the parameters you want in `settings/settings.yaml` 
