@@ -1,0 +1,42 @@
+mode: 'train'
+exp_name: 'exp'
+dataset: 'AudioCaps'
+text_encoder: 'bert'
+joint_embed: 1024
+
+wav:
+  sr: 32000 
+  window_size: 1024
+  hop_length: 320
+  mel_bins: 64
+
+bert_encoder:
+  type: 'bert-base-uncased'
+  freeze: Yes
+
+cnn_encoder:
+  model: 'ResNet38'
+  pretrained: Yes
+  freeze: Yes
+
+data:
+  batch_size: 64
+  num_workers: 8
+
+training:
+  margin: 0.2
+  freeze: Yes
+  loss: contrastive
+  spec_augmentation: Yes
+  epochs: 50
+  lr: !!float 1e-4
+  clip_grad: 2
+  seed: 20
+  resume: No
+  l2_norm: Yes
+  dropout: 0.2
+
+path:
+  vocabulary: 'data/{}/pickles/words_list.p'
+  word2vec: 'pretrained_models/w2v_all_vocabulary.model'
+  resume_model: ''
