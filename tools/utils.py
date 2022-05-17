@@ -3,6 +3,9 @@
 # @Author  : Xinhao Mei @CVSSP, University of Surrey
 # @E-mail  : x.mei@surrey.ac.uk
 
+"""
+Evaluation tools adapted from https://github.com/fartashf/vsepp/blob/master/evaluation.py
+"""
 
 import numpy as np
 import torch
@@ -76,6 +79,7 @@ def a2t(audio_embs, cap_embs, return_ranks=False):
 
     ranks = np.zeros(num_audios)
     top1 = np.zeros(num_audios)
+    mAP10 = np.zeros(num_audios)
     for index in range(num_audios):
         # get query audio
         audio = audio_embs[5 * index].reshape(1, audio_embs.shape[1])
@@ -85,11 +89,20 @@ def a2t(audio_embs, cap_embs, return_ranks=False):
         inds = np.argsort(d)[::-1]
         index_list.append(inds[0])
 
+        inds_map = []
+
         rank = 1e20
         for i in range(5 * index, 5 * index + 5, 1):
             tmp = np.where(inds == i)[0][0]
             if tmp < rank:
                 rank = tmp
+            if tmp < 10:
+                inds_map.append(tmp + 1)
+        inds_map = np.sort(np.array(inds_map))
+        if len(inds_map) != 0:
+            mAP10[index] = np.sum((np.arange(1, len(inds_map) + 1) / inds_map)) / 5
+        else:
+            mAP10[index] = 0.
         ranks[index] = rank
         top1[index] = inds[0]
     # compute metrics
@@ -97,6 +110,7 @@ def a2t(audio_embs, cap_embs, return_ranks=False):
     r5 = 100.0 * len(np.where(ranks < 5)[0]) / len(ranks)
     r10 = 100.0 * len(np.where(ranks < 10)[0]) / len(ranks)
     r50 = 100.0 * len(np.where(ranks < 50)[0]) / len(ranks)
+    mAP10 = 100.0 * np.sum(mAP10) / len(ranks)
     medr = np.floor(np.median(ranks)) + 1
     meanr = ranks.mean() + 1
     if return_ranks:
@@ -133,6 +147,7 @@ def t2a(audio_embs, cap_embs, return_ranks=False):
     r5 = 100.0 * len(np.where(ranks < 5)[0]) / len(ranks)
     r10 = 100.0 * len(np.where(ranks < 10)[0]) / len(ranks)
     r50 = 100.0 * len(np.where(ranks < 50)[0]) / len(ranks)
+    mAP10 = 100.0 * np.sum(1 / (ranks[np.where(ranks < 10)[0]] + 1)) / len(ranks)
     medr = np.floor(np.median(ranks)) + 1
     meanr = ranks.mean() + 1
     if return_ranks:
